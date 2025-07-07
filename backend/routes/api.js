@@ -1,7 +1,7 @@
 import express from 'express';
 import multer from 'multer';
 import Home from '../models/Home.js';
-import { getFile, uploadFile, getFileMetadata } from '../services/googleDrive.js';
+import { getFile, uploadFile, getFileMetadata, deleteFile } from '../services/googleDrive.js';
 
 const router = express.Router();
 
@@ -137,5 +137,49 @@ router.get('/homes/:id', async (req, res) => {
   }
 });
 
+// @route   DELETE api/homes/:id
+// @desc    Delete a home listing by ID and remove associated files from Google Drive
+// @access  Public
+router.delete('/homes/:id', async (req, res) => {
+  try {
+    const home = await Home.findById(req.params.id);
+
+    if (!home) {
+      return res.status(404).json({ msg: 'Home not found' });
+    }
+
+    // Delete associated files from Google Drive
+    const deleteFilePromises = home.mediaFiles.map(async (file) => {
+      try {
+        // Assuming you have a deleteFile function in your googleDrive service
+        await deleteFile(file.googleDriveId);
+        console.log(`Deleted file from Google Drive: ${file.googleDriveId}`);
+      } catch (googleDriveErr) {
+        console.error(`Failed to delete file ${file.googleDriveId} from Google Drive:`, googleDriveErr.message);
+        // Continue with home deletion even if file deletion fails
+      }
+    });
+
+    await Promise.all(deleteFilePromises);
+
+    // Remove the home from the database
+    const deletedHome = await Home.findByIdAndDelete(req.params.id);
+
+    if (!deletedHome) {
+        // This case should ideally not be reached if findById above succeeded,
+        // but it's a safeguard.
+        return res.status(404).json({ msg: 'Home not found after file deletion attempt' });
+    }
+
+    res.json({ msg: 'Home removed' });
+
+  } catch (err) {
+    console.error(err.message);
+    if (err.kind === 'ObjectId') {
+      return res.status(404).json({ msg: 'Home not found' });
+    }
+    res.status(500).send('Server Error');
+  }
+});
 
 export default router;

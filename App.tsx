@@ -36,6 +36,20 @@ function App() {
     fetchHomes();
   }, [fetchHomes]);
 
+  const handleDeleteHome = useCallback(async (id: string) => {
+    try {
+      await api.deleteHome(id);
+      setHomes(prevHomes => prevHomes.filter(home => home._id !== id));
+      // If the user is currently viewing the detail page of the deleted home, navigate back to the list view
+      if (view.name === 'detail' && view.homeId === id) {
+        setView({ name: 'list' });
+      }
+    } catch (err) {
+      setError('Failed to delete the home. Please try again.');
+      console.error(err);
+    }
+  }, [view.name, view.homeId]); // Add view.name and view.homeId to dependencies
+
   const handleAddHome = useCallback(async (newHomeData: Omit<Home, '_id' | 'createdAt'>): Promise<boolean> => {
     try {
         const addedHome = await api.addHome(newHomeData);
@@ -76,7 +90,7 @@ function App() {
         );
       case 'list':
       default:
-        return <HomeListPage homes={homes} onSelectHome={(id) => setView({ name: 'detail', homeId: id })} />;
+        return <HomeListPage homes={homes} onSelectHome={(id) => setView({ name: 'detail', homeId: id })} onDeleteHome={handleDeleteHome} />; // Pass handleDeleteHome
     }
   };
 

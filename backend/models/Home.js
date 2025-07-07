@@ -41,6 +41,10 @@ const HomeSchema = new mongoose.Schema({
     type: String,
     trim: true,
   },
+  googleMapsUrl: {
+    type: String,
+    trim: true,
+  },
   notes: {
     type: String,
   },

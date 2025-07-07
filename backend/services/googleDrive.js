@@ -104,3 +104,24 @@ export async function getFileMetadata(fileId) {
     throw error;
   }
 }
+
+/**
+ * Deletes a file from Google Drive by its ID.
+ * @param {string} fileId - The ID of the file to delete.
+ * @returns {Promise<void>}
+ */
+export async function deleteFile(fileId) {
+  try {
+    const authClient = await auth.getClient();
+    const drive = google.drive({ version: 'v3', auth: authClient });
+
+    await drive.files.delete({
+      fileId: fileId,
+    });
+    console.log(`File with ID ${fileId} deleted from Google Drive.`);
+  } catch (error) {
+    console.error('Error deleting file from Google Drive:', error.message);
+    console.error(error); // Log the full error object
+    throw error;
+  }
+}

@@ -14,6 +14,7 @@ export interface Home {
   deposit?: number;
   size: string;
   listingUrl?: string;
+  googleMapsUrl?: string;
   notes?: string;
   mediaFiles: MediaFile[];
   createdAt: string; // Will be an ISO date string from the backend

@@ -22,6 +22,7 @@ const AddHomePage: React.FC<AddHomePageProps> = ({ onAddHome, onCancel }) => {
     deposit: '',
     size: '',
     listingUrl: '',
+    googleMapsUrl: '',
     notes: '',
   });
   const [media, setMedia] = useState<FilePreview[]>([]);
@@ -99,6 +100,7 @@ const AddHomePage: React.FC<AddHomePageProps> = ({ onAddHome, onCancel }) => {
         deposit: formData.deposit ? Number(formData.deposit) : undefined,
         size: formData.size,
         listingUrl: formData.listingUrl,
+        googleMapsUrl: formData.googleMapsUrl,
         notes: formData.notes,
         mediaFiles: uploadedMediaFiles,
       };
@@ -132,12 +134,12 @@ const AddHomePage: React.FC<AddHomePageProps> = ({ onAddHome, onCancel }) => {
              {errors.address && <p className="text-sm text-red-600 mt-1">{errors.address}</p>}
           </div>
           <div>
-            <label htmlFor="price" className="block text-sm font-medium text-slate-700">Price (USD)</label>
+            <label htmlFor="price" className="block text-sm font-medium text-slate-700">Price (Rs)</label>
             <input type="number" name="price" id="price" placeholder="e.g., 500000" value={formData.price} onChange={handleInputChange} required className={`mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 ${errors.price ? 'border-red-500' : ''}`} />
             {errors.price && <p className="text-sm text-red-600 mt-1">{errors.price}</p>}
           </div>
            <div>
-            <label htmlFor="deposit" className="block text-sm font-medium text-slate-700">Deposit (USD, Optional)</label>
+            <label htmlFor="deposit" className="block text-sm font-medium text-slate-700">Deposit (Rs, Optional)</label>
             <input type="number" name="deposit" id="deposit" placeholder="e.g., 100000" value={formData.deposit} onChange={handleInputChange} className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500" />
           </div>
           <div className="md:col-span-2">
@@ -148,6 +150,10 @@ const AddHomePage: React.FC<AddHomePageProps> = ({ onAddHome, onCancel }) => {
            <div className="md:col-span-2">
             <label htmlFor="listingUrl" className="block text-sm font-medium text-slate-700">Original Listing URL (Optional)</label>
             <input type="url" name="listingUrl" id="listingUrl" value={formData.listingUrl} onChange={handleInputChange} className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500" />
+          </div>
+          <div className="md:col-span-2">
+            <label htmlFor="googleMapsUrl" className="block text-sm font-medium text-slate-700">Google Maps URL (Optional)</label>
+            <input type="url" name="googleMapsUrl" id="googleMapsUrl" value={formData.googleMapsUrl} onChange={handleInputChange} className="mt-1 block w-full rounded-md border-slate-300 shadow-sm focus:border-teal-500 focus:ring-teal-500" />
           </div>
           <div className="md:col-span-2">
             <label htmlFor="notes" className="block text-sm font-medium text-slate-700">Notes (Optional)</label>

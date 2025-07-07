@@ -45,4 +45,13 @@ export const api = {
     const response = await apiClient.post('/homes', homeData);
     return response.data;
   },
+
+  /**
+   * Deletes a home listing by its ID.
+   * @param id - The ID of the home to delete.
+   * @returns A promise that resolves when the deletion is successful.
+   */
+  deleteHome: async (id: string): Promise<void> => {
+    await apiClient.delete(`/homes/${id}`);
+  },
 };

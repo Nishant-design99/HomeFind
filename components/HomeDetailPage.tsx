@@ -12,6 +12,7 @@ const getBackendFileUrl = (id: string) => `/api/files/${id}`;
 
 const MediaViewer: React.FC<{ mediaFiles: MediaFile[] }> = ({ mediaFiles }) => {
   const [selectedMedia, setSelectedMedia] = useState<MediaFile | null>(mediaFiles[0] || null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   if (mediaFiles.length === 0) {
     return (
@@ -21,52 +22,102 @@ const MediaViewer: React.FC<{ mediaFiles: MediaFile[] }> = ({ mediaFiles }) => {
     );
   }
 
-  if (!selectedMedia) return null; // Should not happen if mediaFiles is not empty
+  if (!selectedMedia) return null;
 
-  // Use the backend URL instead of the direct Google Drive URL
   const selectedUrl = getBackendFileUrl(selectedMedia.googleDriveId);
 
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
+
+  const handleNext = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const currentIndex = mediaFiles.findIndex(file => file.googleDriveId === selectedMedia.googleDriveId);
+    const nextIndex = (currentIndex + 1) % mediaFiles.length;
+    setSelectedMedia(mediaFiles[nextIndex]);
+  };
+
+  const handlePrev = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const currentIndex = mediaFiles.findIndex(file => file.googleDriveId === selectedMedia.googleDriveId);
+    const prevIndex = (currentIndex - 1 + mediaFiles.length) % mediaFiles.length;
+    setSelectedMedia(mediaFiles[prevIndex]);
+  };
+
   return (
-    <div className="flex flex-col gap-4">
-      <div className="bg-black rounded-lg w-full aspect-video flex items-center justify-center overflow-hidden">
-        {selectedMedia.mimeType.startsWith('image/') ? (
-          // Use the backend URL for the image source
-          <img src={selectedUrl} alt={selectedMedia.fileName} className="max-h-full max-w-full object-contain" />
-        ) : (
-          // Use the backend URL for the video source
-          <video src={selectedUrl} controls className="max-h-full max-w-full" />
-        )}
+    <>
+      <div className="flex flex-col gap-4">
+        <div 
+          className="bg-black rounded-lg w-full aspect-video flex items-center justify-center overflow-hidden cursor-pointer"
+          onClick={openModal}
+        >
+          {selectedMedia.mimeType.startsWith('image/') ? (
+            <img src={selectedUrl} alt={selectedMedia.fileName} className="max-h-full max-w-full object-contain" />
+          ) : (
+            <video src={selectedUrl} controls className="max-h-full max-w-full" />
+          )}
+        </div>
+        <div className="flex gap-2 overflow-x-auto pb-2">
+          {mediaFiles.map((file, index) => {
+            const thumbnailUrl = file.mimeType.startsWith('image/') ? getBackendFileUrl(file.googleDriveId) : '';
+            return (
+              <div 
+                key={index} 
+                onClick={() => setSelectedMedia(file)}
+                className={`cursor-pointer rounded-md overflow-hidden flex-shrink-0 w-24 h-16 border-2 ${selectedMedia === file ? 'border-teal-500' : 'border-transparent'}`}
+              >
+                {file.mimeType.startsWith('image/') ? (
+                  <img src={thumbnailUrl} alt={file.fileName} className="w-full h-full object-cover" />
+                ) : (
+                   <div className="w-full h-full bg-slate-700 flex items-center justify-center text-white text-xs p-1 text-center leading-tight">
+                    {file.fileName}
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
       </div>
-      <div className="flex gap-2 overflow-x-auto pb-2">
-        {mediaFiles.map((file, index) => {
-          // Use the backend URL for thumbnail previews if they are images
-          const thumbnailUrl = file.mimeType.startsWith('image/') ? getBackendFileUrl(file.googleDriveId) : '';
-          return (
-            <div 
-              key={index} 
-              onClick={() => setSelectedMedia(file)}
-              className={`cursor-pointer rounded-md overflow-hidden flex-shrink-0 w-24 h-16 border-2 ${selectedMedia === file ? 'border-teal-500' : 'border-transparent'}`}
+
+      {isModalOpen && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
+          onClick={closeModal}
+        >
+          <button 
+              onClick={closeModal} 
+              className="absolute top-2 right-2 text-white bg-black bg-opacity-50 rounded-full p-2 z-20"
             >
-              {file.mimeType.startsWith('image/') ? (
-                // Use the backend URL for the thumbnail image source
-                <img src={thumbnailUrl} alt={file.fileName} className="w-full h-full object-cover" />
-              ) : (
-                 <div className="w-full h-full bg-slate-700 flex items-center justify-center text-white text-xs p-1 text-center leading-tight">
-                  {file.fileName}
-                </div>
-              )}
-            </div>
-          )
-        })}
-      </div>
-    </div>
+              &times;
+            </button>
+            <button 
+              onClick={handlePrev} 
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-white bg-black bg-opacity-50 rounded-full p-2 z-20"
+            >
+              &#10094;
+            </button>
+            <button 
+              onClick={handleNext} 
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-white bg-black bg-opacity-50 rounded-full p-2 z-20"
+            >
+              &#10095;
+            </button>
+          <div className="relative max-w-4xl max-h-full w-full h-full flex items-center justify-center">
+            {selectedMedia.mimeType.startsWith('image/') ? (
+              <img src={selectedUrl} alt={selectedMedia.fileName} className="max-h-full max-w-full object-contain" />
+            ) : (
+              <video src={selectedUrl} controls autoPlay className="max-h-full max-w-full" />
+            )}
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 
 const HomeDetailPage: React.FC<HomeDetailPageProps> = ({ home, onClose }) => {
   const formatPrice = (price?: number) => {
     if (!price) return 'N/A';
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(price);
+    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'INR' }).format(price);
   };
   
   return (
@@ -102,6 +153,16 @@ const HomeDetailPage: React.FC<HomeDetailPageProps> = ({ home, onClose }) => {
                                 <dd>
                                     <a href={home.listingUrl} target="_blank" rel="noopener noreferrer" className="font-medium text-teal-600 hover:underline">
                                         View Original
+                                    </a>
+                                </dd>
+                             </div>
+                        )}
+                        {home.googleMapsUrl && (
+                             <div className="flex justify-between items-center">
+                                <dt>Location</dt>
+                                <dd>
+                                    <a href={home.googleMapsUrl} target="_blank" rel="noopener noreferrer" className="font-medium text-teal-600 hover:underline">
+                                        View on Google Maps
                                     </a>
                                 </dd>
                              </div>
