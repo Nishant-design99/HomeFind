@@ -1,0 +1,5 @@
+{
+  "name": "HomeBoard",
+  "description": "A collaborative web application to track potential new homes. Users can add listings with photos and videos, view all listings in a gallery, and see detailed information for each home.",
+  "requestFramePermissions": []
+}
