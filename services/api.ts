@@ -3,7 +3,7 @@ import { Home } from '../types';
 
 // The backend server will be running on port 5000
 const apiClient = axios.create({
-  baseURL: 'http://localhost:5000/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api',
 });
 
 export const api = {
