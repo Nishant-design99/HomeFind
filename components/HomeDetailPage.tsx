@@ -8,7 +8,7 @@ interface HomeDetailPageProps {
 }
 
 // Helper to construct a URL pointing to your backend endpoint for fetching files
-const getBackendFileUrl = (id: string) => `/api/files/${id}`;
+const getBackendFileUrl = (id: string) => `${import.meta.env.VITE_API_BASE_URL}/files/${id}`;
 
 const MediaViewer: React.FC<{ mediaFiles: MediaFile[] }> = ({ mediaFiles }) => {
   const [selectedMedia, setSelectedMedia] = useState<MediaFile | null>(mediaFiles[0] || null);
