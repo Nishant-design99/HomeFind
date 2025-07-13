@@ -8,9 +8,26 @@ if (!FOLDER_ID) {
   throw new Error('Missing Google Drive folder ID.');
 }
 
-const auth = new google.auth.GoogleAuth({
-  scopes: ['https://www.googleapis.com/auth/drive'],
-});
+
+// Use credentials from environment variable if present (for Render and similar hosts)
+let auth;
+if (process.env.GOOGLE_SERVICE_ACCOUNT_JSON) {
+  try {
+    const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON);
+    auth = new google.auth.GoogleAuth({
+      credentials,
+      scopes: ['https://www.googleapis.com/auth/drive'],
+    });
+  } catch (err) {
+    console.error('Failed to parse GOOGLE_SERVICE_ACCOUNT_JSON:', err);
+    throw err;
+  }
+} else {
+  // Fallback to default (may use GOOGLE_APPLICATION_CREDENTIALS file path)
+  auth = new google.auth.GoogleAuth({
+    scopes: ['https://www.googleapis.com/auth/drive'],
+  });
+}
 
 /**
  * Uploads a file to the designated Google Drive folder.
