@@ -2,6 +2,7 @@ import express from 'express';
 import multer from 'multer';
 import Home from '../models/Home.js';
 import { getFile, uploadFile, getFileMetadata, deleteFile } from '../services/googleDrive.js';
+import { google } from 'googleapis';
 
 const router = express.Router();
 
@@ -9,6 +10,13 @@ const router = express.Router();
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB file size limit
+});
+
+// Google Auth configuration
+const credentials = JSON.parse(process.env.GOOGLE_SERVICE_ACCOUNT_JSON);
+const auth = new google.auth.GoogleAuth({
+  credentials,
+  scopes: ['https://www.googleapis.com/auth/drive.readonly'],
 });
 
 // @route   POST api/upload
@@ -52,9 +60,9 @@ router.get('/files/:fileId', async (req, res) => {
 
     // Set appropriate headers for streaming
     res.setHeader('Content-Type', metadata.mimeType);
-    console.log('Setting Content-Type header:', metadata.mimeType); // Add this line
+    console.log('Setting Content-Type header:', metadata.mimeType);
     // You might also want to set Content-Disposition if you want to suggest a filename
-    // res.setHeader('Content-Disposition', `inline; filename="${metadata.name}"`);
+    res.setHeader('Content-Disposition', `inline; filename="${metadata.name}"`);
 
     driveStream.pipe(res);
 
