@@ -1,6 +1,6 @@
 # HomeBoard - Collaborative Home Search
 
-This is a collaborative web application for tracking potential new homes. It uses a MERN stack (MongoDB, Express, React, Node.js) with Google Drive for media storage.
+This is a collaborative web application for tracking potential new homes. It uses a MERN stack (MongoDB, Express, React, Node.js) with Google Drive for media storage. Sample hosted on https://homefind-eb8m.onrender.com/
 
 ## Project Structure
 
